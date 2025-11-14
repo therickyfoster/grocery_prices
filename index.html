@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Grocery Cost Reduction System</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f7fa;
+            color: #2c3e50;
+            line-height: 1.6;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 60px 40px;
+            border-radius: 12px;
+            margin-bottom: 40px;
+            text-align: center;
+        }
+        
+        header h1 {
+            font-size: 2.5em;
+            margin-bottom: 15px;
+        }
+        
+        header p {
+            font-size: 1.3em;
+            opacity: 0.95;
+        }
+        
+        .nav-tabs {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #e1e8ed;
+            flex-wrap: wrap;
+        }
+        
+        .nav-tab {
+            padding: 15px 25px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #7f8c8d;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+        }
+        
+        .nav-tab:hover {
+            color: #667eea;
+        }
+        
+        .nav-tab.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+        }
+        
+        .tab-content {
+            display: none;
+        }
+        
+        .tab-content.active {
+            display: block;
+        }
+        
+        .section {
+            background: white;
+            padding: 40px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .section h2 {
+            color: #2c3e50;
+            font-size: 2em;
+            margin-bottom: 20px;
+            border-left: 5px solid #667eea;
+            padding-left: 20px;
+        }
+        
+        .section h3 {
+            color: #667eea;
+            font-size: 1.5em;
+            margin: 30px 0 15px 0;
+        }
+        
+        .section h4 {
+            color: #2c3e50;
+            font-size: 1.2em;
+            margin: 20px 0 10px 0;
+        }
+        
+        .section p {
+            margin: 15px 0;
+            font-size: 1.05em;
+        }
+        
+        .section ul, .section ol {
+            margin: 15px 0 15px 30px;
+        }
+        
+        .section li {
+            margin: 10px 0;
+        }
+        
+        .highlight-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            margin: 25px 0;
+            border-radius: 6px;
+        }
+        
+        .highlight-box strong {
+            color: #856404;
+        }
+        
+        .strategy-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 25px;
+            margin: 30px 0;
+        }
+        
+        .strategy-card {
+            background: #f8f9fa;
+            border-left: 4px solid #667eea;
+            padding: 25px;
+            border-radius: 8px;
+        }
+        
+        .strategy-card h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .savings-badge {
+            display: inline-block;
+            background: #d4edda;
+            color: #155724;
+            padding: 6px 12px;
+            border-radius: 15px;
+            font-weight: 600;
+            font-size: 0.9em;
+            margin: 5px 5px 5px 0;
+        }
+        
+        .comparison-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 25px 0;
+            background: white;
+        }
+        
+        .comparison-table th {
+            background: #667eea;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .comparison-table td {
+            padding: 15px;
+            border-bottom: 1px solid #e1e8ed;
+        }
+        
+        .comparison-table tr:hover {
+            background: #f8f9fa;
+        }
+        
+        .chart-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            margin: 30px 0;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        
+        .chart-container h3 {
+            color: #2c3e50;
+            margin-bottom: 20px;
+        }
+        
+        .chart-wrapper {
+            position: relative;
+            height: 400px;
+        }
+        
+        .prompt-card {
+            background: white;
+            border: 2px solid #e1e8ed;
+            padding: 25px;
+            margin: 20px 0;
+            border-radius: 8px;
+        }
+        
+        .prompt-card h4 {
+            color: #667eea;
+            margin-bottom: 15px;
+        }
+        
+        .prompt-text {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.95em;
+            line-height: 1.8;
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e1e8ed;
+        }
+        
+        .copy-btn {
+            background: #667eea;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 6px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 1em;
+            transition: all 0.3s;
+        }
+        
+        .copy-btn:hover {
+            background: #764ba2;
+            transform: translateY(-2px);
+        }
+        
+        .impact-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin: 30px 0;
+        }
+        
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .stat-card h3 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            color: white;
+        }
+        
+        .stat-card p {
+            font-size: 1.1em;
+            opacity: 0.95;
+        }
+        
+        .case-study {
+            background: #e8f4f8;
+            border-left: 4px solid #17a2b8;
+            padding: 25px;
+            margin: 25px 0;
+            border-radius: 8px;
+        }
+        
+        .case-study h4 {
+            color: #17a2b8;
+            margin-bottom: 15px;
+        }
+        
+        .metric {
+            display: inline-block;
+            background: white;
+            padding: 10px 15px;
+            border-radius: 6px;
+            margin: 5px;
+            font-weight: 600;
+            color: #17a2b8;
+        }
+        
+        footer {
+            background: #2c3e50;
+            color: white;
+            text-align: center;
+            padding: 40px;
+            border-radius: 12px;
+            margin-top: 40px;
+        }
+        
+        footer h3 {
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💰 Grocery Price Reduction System</h1>
+            <p>Comprehensive strategies to reduce costs by 25-40% while improving food access</p>
+        </header>
+        
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('overview')">Overview</button>
+            <button class="nav-tab" onclick="switchTab('pricing')">Dynamic Pricing</button>
+            <button class="nav-tab" onclick="switchTab('inventory')">Inventory</button>
+            <button class="nav-tab" onclick="switchTab('waste')">Waste Reduction</button>
+            <button class="nav-tab" onclick="switchTab('operations')">Operations</button>
+            <button class="nav-tab" onclick="switchTab('sourcing')">Sourcing</button>
+            <button class="nav-tab" onclick="switchTab('prompts')">AI Prompts</button>
+        </div>
+
+        <!-- OVERVIEW TAB -->
+        <div id="overview" class="tab-content active">
+            <div class="section">
+                <h2>The Complete Framework</h2>
+                <p style="font-size: 1.2em;">Grocery prices can be reduced by 25-40% through systematic optimization across six key areas. These strategies work together to create compound savings while improving food quality and access.</p>
+                
+                <div class="impact-stats">
+                    <div class="stat-card">
+                        <h3>25-40%</h3>
+                        <p>Total Cost Reduction</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>$2,000+</h3>
+                        <p>Annual Savings/Household</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>30%</h3>
+                        <p>Food Currently Wasted</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>$500B</h3>
+                        <p>U.S. Market Opportunity</p>
+                    </div>
+                </div>
+
+                <h3>Six Core Strategies</h3>
+                
+                <div class="strategy-grid">
+                    <div class="strategy-card">
+                        <h4>1. Dynamic Pricing</h4>
+                        <p>AI-powered markdown strategies that optimize prices based on expiration dates, demand, and inventory levels.</p>
+                        <span class="savings-badge">Revenue +5-8%</span>
+                        <span class="savings-badge">Waste -30-50%</span>
+                    </div>
+                    
+                    <div class="strategy-card">
+                        <h4>2. Inventory Optimization</h4>
+                        <p>Demand forecasting and just-in-time ordering to reduce carrying costs and improve freshness.</p>
+                        <span class="savings-badge">Inventory -30-40%</span>
+                        <span class="savings-badge">Capital Freed: $50K-500K</span>
+                    </div>
+                    
+                    <div class="strategy-card">
+                        <h4>3. Waste Reduction</h4>
+                        <p>Comprehensive tracking, prevention, and donation programs to minimize food loss.</p>
+                        <span class="savings-badge">Waste -60-75%</span>
+                        <span class="savings-badge">$200K-1M+ Saved</span>
+                    </div>
+                    
+                    <div class="strategy-card">
+                        <h4>4. Energy Efficiency</h4>
+                        <p>Refrigeration, HVAC, and lighting optimization through smart controls and upgrades.</p>
+                        <span class="savings-badge">Energy -30-50%</span>
+                        <span class="savings-badge">$50K-200K Saved</span>
+                    </div>
+                    
+                    <div class="strategy-card">
+                        <h4>5. Labor Optimization</h4>
+                        <p>AI scheduling, cross-training, and selective automation to match staffing to demand.</p>
+                        <span class="savings-badge">Labor -15-25%</span>
+                        <span class="savings-badge">Service Quality +20%</span>
+                    </div>
+                    
+                    <div class="strategy-card">
+                        <h4>6. Direct Sourcing</h4>
+                        <p>Cut out middlemen through direct farm partnerships and private label development.</p>
+                        <span class="savings-badge">COGS -10-20%</span>
+                        <span class="savings-badge">Margins +8-15%</span>
+                    </div>
+                </div>
+
+                <h3>Cost Breakdown: Where Your Grocery Dollar Goes</h3>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Cost Category</th>
+                            <th>% of Revenue</th>
+                            <th>Optimization Potential</th>
+                            <th>Key Strategy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Cost of Goods (COGS)</strong></td>
+                            <td>70%</td>
+                            <td>8-15% reduction</td>
+                            <td>Direct sourcing, private label, waste reduction</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Labor</strong></td>
+                            <td>15%</td>
+                            <td>15-25% reduction</td>
+                            <td>AI scheduling, automation, cross-training</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Occupancy (rent, utilities)</strong></td>
+                            <td>8%</td>
+                            <td>30-50% on utilities</td>
+                            <td>Energy optimization, efficient layouts</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Marketing</strong></td>
+                            <td>2%</td>
+                            <td>50% ROI improvement</td>
+                            <td>Data-driven targeting, loyalty programs</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Other Operating</strong></td>
+                            <td>5%</td>
+                            <td>20-30% reduction</td>
+                            <td>Process optimization, vendor negotiation</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="chart-container">
+                    <h3>Cumulative Impact Timeline</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DYNAMIC PRICING TAB -->
+        <div id="pricing" class="tab-content">
+            <div class="section">
+                <h2>Dynamic Pricing Strategy</h2>
+                
+                <div class="highlight-box">
+                    <strong>Impact:</strong> Increase revenue by 5-8% while reducing waste by 30-50% through intelligent, real-time pricing decisions.
+                </div>
+
+                <h3>The Core Concept</h3>
+                <p>Instead of manual, periodic markdowns, use AI to continuously optimize prices based on:</p>
+                <ul>
+                    <li><strong>Days until expiration</strong> - Gradual price reductions as products age</li>
+                    <li><strong>Current inventory levels</strong> - Lower prices when overstocked</li>
+                    <li><strong>Historical demand patterns</strong> - Predict who will buy at what price</li>
+                    <li><strong>Time of day</strong> - Different pricing for morning vs. evening shoppers</li>
+                    <li><strong>Weather and events</strong> - Adjust for external factors</li>
+                </ul>
+
+                <h3>Implementation Approaches</h3>
+
+                <h4>Level 1: Time-Based Markdown Curves (Easiest)</h4>
+                <p><strong>Example for Bakery:</strong></p>
+                <ul>
+                    <li>Day 1-3: Full price</li>
+                    <li>Day 4: 20% off</li>
+                    <li>Day 5: 40% off</li>
+                    <li>Day 6: 60% off</li>
+                    <li>Last 2 hours: 75% off or donate</li>
+                </ul>
+                <p><strong>Requirements:</strong> Electronic shelf labels, basic inventory tracking</p>
+                <p><strong>Results:</strong> 25-35% waste reduction, immediate impact</p>
+
+                <h4>Level 2: Demand-Sensing Dynamic Pricing (Intermediate)</h4>
+                <p><strong>Pricing rules:</strong></p>
+                <ul>
+                    <li>High demand + Low stock = Price increase 5-10%</li>
+                    <li>Low demand + High stock = Price decrease 15-25%</li>
+                    <li>Weather-based adjustments (hot day = lower ice cream prices to move volume)</li>
+                    <li>Event-based (game day = optimize snack pricing)</li>
+                </ul>
+                <p><strong>Requirements:</strong> AI forecasting system, real-time inventory data</p>
+                <p><strong>Results:</strong> 35-45% waste reduction, 5-7% revenue lift</p>
+
+                <h4>Level 3: Personalized Pricing via Mobile App (Advanced)</h4>
+                <p><strong>Strategy:</strong> Different customers see different prices based on preferences</p>
+                <ul>
+                    <li>Price-sensitive shoppers get alerts for markdowns</li>
+                    <li>Premium shoppers get early access to specialty items</li>
+                    <li>Health-conscious customers see organic produce bundles</li>
+                    <li>Lapsed customers receive win-back offers</li>
+                </ul>
+                <p><strong>Requirements:</strong> Mobile app, customer data platform, loyalty program</p>
+                <p><strong>Results:</strong> 45-50% waste reduction, 7-10% revenue lift</p>
+
+                <div class="case-study">
+                    <h4>📊 Case Study: European Supermarket Chain</h4>
+                    <p><strong>Challenge:</strong> 14% waste rate in fresh departments costing €8M annually</p>
+                    <p><strong>Solution:</strong> AI dynamic pricing with electronic shelf labels across 150 stores</p>
+                    <p><strong>Results after 12 months:</strong></p>
+                    <span class="metric">Waste: 14% → 5.2%</span>
+                    <span class="metric">Revenue: +6.8%</span>
+                    <span class="metric">€12M annual benefit</span>
+                    <span class="metric">ROI: 7 months</span>
+                </div>
+
+                <h3>Getting Started</h3>
+                <ol>
+                    <li><strong>Month 1-2:</strong> Install electronic shelf labels in high-waste departments (produce, bakery, deli)</li>
+                    <li><strong>Month 3:</strong> Implement basic time-based markdown rules</li>
+                    <li><strong>Month 4-6:</strong> Add AI forecasting layer for demand-sensing</li>
+                    <li><strong>Month 7+:</strong> Expand to personalized pricing through mobile app</li>
+                </ol>
+            </div>
+        </div>
+
+        <!-- INVENTORY TAB -->
+        <div id="inventory" class="tab-content">
+            <div class="section">
+                <h2>Inventory Optimization</h2>
+                
+                <div class="highlight-box">
+                    <strong>Impact:</strong> Reduce inventory carrying costs by 30-40%, free up $50K-500K in working capital per store, reduce waste through better stock rotation.
+                </div>
+
+                <h3>The Problem with Traditional Inventory Management</h3>
+                <p>Most stores carry too much inventory because:</p>
+                <ul>
+                    <li>Safety stock is set too high ("just in case")</li>
+                    <li>Ordering is based on gut feel, not data</li>
+                    <li>No visibility into actual demand patterns</li>
+                    <li>Fear of stockouts drives overordering</li>
+                </ul>
+
+                <h3>The Solution: AI-Powered Demand Forecasting</h3>
+
+                <h4>Step 1: Collect the Right Data</h4>
+                <ul>
+                    <li>3+ years of daily sales by SKU</li>
+                    <li>Seasonal patterns (holidays, weather, events)</li>
+                    <li>Day-of-week effects</li>
+                    <li>Promotional impacts</li>
+                    <li>External factors (competitor actions, economic conditions)</li>
+                </ul>
+
+                <h4>Step 2: Build Forecasting Models</h4>
+                <p>Use machine learning to predict daily demand for each product with 85-95% accuracy.</p>
+
+                <h4>Step 3: Optimize Safety Stock by Category</h4>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Current Days on Hand</th>
+                            <th>Optimized Days on Hand</th>
+                            <th>Strategy</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Produce</td>
+                            <td>4 days</td>
+                            <td>2 days</td>
+                            <td>Daily deliveries from local farms</td>
+                        </tr>
+                        <tr>
+                            <td>Dairy</td>
+                            <td>6 days</td>
+                            <td>4 days</td>
+                            <td>FIFO rotation, aggressive markdowns</td>
+                        </tr>
+                        <tr>
+                            <td>Meat/Seafood</td>
+                            <td>5 days</td>
+                            <td>3 days</td>
+                            <td>Weather-adjusted forecasting</td>
+                        </tr>
+                        <tr>
+                            <td>Bakery</td>
+                            <td>2 days</td>
+                            <td>1 day</td>
+                            <td>Bake throughout day, donate unsold</td>
+                        </tr>
+                        <tr>
+                            <td>Frozen</td>
+                            <td>28 days</td>
+                            <td>18 days</td>
+                            <td>Bulk ordering for discounts</td>
+                        </tr>
+                        <tr>
+                            <td>Dry Grocery</td>
+                            <td>35 days</td>
+                            <td>24 days</td>
+                            <td>Promotional planning, forward buying</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Step 4: Automate Reordering</h4>
+                <p>Remove human error with automatic ordering when stock hits reorder points.</p>
+
+                <div class="chart-container">
+                    <h3>Inventory Reduction Impact</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="inventoryChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="case-study">
+                    <h4>📊 Case Study: Regional Chain (25 stores)</h4>
+                    <p><strong>Challenge:</strong> $12M in inventory, 10x annual turn, 8% stockout rate</p>
+                    <p><strong>Solution:</strong> AI forecasting, automated replenishment, category-specific strategies</p>
+                    <p><strong>Results after 9 months:</strong></p>
+                    <span class="metric">Inventory: $12M → $8.5M</span>
+                    <span class="metric">Turn rate: 10x → 15x/year</span>
+                    <span class="metric">Stockouts: 8% → 2.1%</span>
+                    <span class="metric">$875K carrying cost savings</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- WASTE REDUCTION TAB -->
+        <div id="waste" class="tab-content">
+            <div class="section">
+                <h2>Food Waste Reduction</h2>
+                
+                <div class="highlight-box">
+                    <strong>Impact:</strong> Reduce waste from 10-15% to 3-5% of inventory, saving $200K-1M+ annually while feeding communities in need.
+                </div>
+
+                <h3>The Scale of the Problem</h3>
+                <div class="impact-stats">
+                    <div class="stat-card">
+                        <h3>30-40%</h3>
+                        <p>Of U.S. food supply wasted</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>$408B</h3>
+                        <p>Annual economic loss</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3>10-15%</h3>
+                        <p>Typical grocery waste rate</p>
+                    </div>
+                </div>
+
+                <h3>Three-Part Strategy</h3>
+
+                <h4>Part 1: Track Everything</h4>
+                <p>"You can't manage what you don't measure"</p>
+                <ul>
+                    <li>Scan every item before disposal (UPC + weight)</li>
+                    <li>Categorize: Expired, Damaged, Overproduction, Customer Returns</li>
+                    <li>Daily dashboards by department and SKU</li>
+                    <li>Manager accountability with waste reduction targets</li>
+                </ul>
+                <p><strong>Result:</strong> Visibility alone typically reduces waste 20-30%</p>
+
+                <h4>Part 2: Prevent Waste by Department</h4>
+
+                <p><strong>Produce (Target: 14% → 5%)</strong></p>
+                <ul>
+                    <li>Optimal temperature & humidity control</li>
+                    <li>Strict FIFO rotation</li>
+                    <li>Frequent culling (3-4x daily)</li>
+                    <li>Gentle handling training</li>
+                    <li>Smaller displays, frequent restocking</li>
+                    <li>Slightly blemished → prepared produce</li>
+                </ul>
+
+                <p><strong>Bakery (Target: 18% → 6%)</strong></p>
+                <ul>
+                    <li>Bake in smaller batches throughout day</li>
+                    <li>Par-bake technology (partially bake, freeze, finish later)</li>
+                    <li>Day-old program at 50% off</li>
+                    <li>Daily donation to food banks</li>
+                    <li>Unsold bread → bread crumbs/croutons</li>
+                </ul>
+
+                <p><strong>Meat/Seafood (Target: 9% → 3%)</strong></p>
+                <ul>
+                    <li>Keep as primals, don't precut until needed</li>
+                    <li>Near-expiration steaks → ground beef</li>
+                    <li>Near-expiration chicken → marinated (extends 3-5 days)</li>
+                    <li>Freeze before quality degrades</li>
+                    <li>Progressive markdowns: 20% off (day -2), 40% off (day -1)</li>
+                </ul>
+
+                <h4>Part 3: Donate What Can't Be Sold</h4>
+                <p><strong>Legal Protection:</strong> Federal Bill Emerson Good Samaritan Act protects donors from liability when donating in good faith.</p>
+
+                <p><strong>Setting Up Donations:</strong></p>
+                <ol>
+                    <li>Partner with local food banks, shelters, food rescue apps</li>
+                    <li>Daily pickup schedule (usually evening)</li>
+                    <li>Designated staging area with refrigeration</li>
+                    <li>Staff training on what can/cannot be donated</li>
+                    <li>Documentation for tax deductions</li>
+                </ol>
+
+                <p><strong>Tax Benefits:</strong></p>
+                <p>Enhanced deduction = Cost basis + 50% of (Fair Market Value - Cost)</p>
+                <p>Example: Product costs $1, sells for $3 → Deduction = $1 + 50%($2) = $2</p>
+                <p>For $100K donated (cost basis): Tax savings ≈ $40K-50K</p>
+
+                <div class="chart-container">
+                    <h3>Waste by Department</h3>
+                    <div class="chart-wrapper">
+                        <canvas id="wasteChart"></canvas>
+                    </div>
+                </div>
+
+                <div class="case-study">
+                    <h4>📊 Case Study: Tesco UK</h4>
+                    <p><strong>Challenge:</strong> 55,000 tons of food waste annually</p>
+                    <p><strong>Solution:</strong> Tracking, staff training, dynamic pricing, partnership with FareShare charity</p>
+                    <p><strong>Results over 5 years:</strong></p>
+                    <span class="metric">Waste: -45%</span>
+                    <span class="metric">25,000 tons donated/year</span>
+                    <span class="metric">£50M+ saved</span>
+                    <span class="metric">58M meals provided</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- OPERATIONS TAB -->
+        <div id="operations" class="tab-content">
+            <div class="section">
+                <h2>Operational Efficiency</h2>
+                
+                <h3>Energy Optimization</h3>
+                <div class="highlight-box">
+                    <strong>Impact:</strong> Reduce energy costs by 30-50%, saving $50K-200K annually per store.
+                </div>
+
+                <h4>Refrigeration (40-50% of energy use)</h4>
+                <p><strong>Quick Wins:</strong></p>
+                <ul>
+                    <li>Optimize temperatures (many stores over-cool by 2-4°F)</li>
+                    <li>Install night curtains on open cases</li>
+                    <li>Add humidity-controlled anti-sweat heaters</li>
+                    <li>Convert to LED case lighting (75% less energy)</li>
+                </ul>
+                <p><strong>Medium-Term Investments:</strong></p>
+                <ul>
+                    <li>Variable speed compressor drives (20-30% savings)</li>
+                    <li>Smart defrost systems (defrost only when needed)</li>
+                    <li>High-efficiency cases with doors</li>
+                </ul>
+                <p><strong>Savings:</strong> 30-50% reduction in refrigeration energy, 2-4 year payback</p>
+
+                <h4>HVAC & Lighting (30-35% of energy use)</h4>
+                <ul>
+                    <li>Zone-based climate control</li>
+                    <li>Full LED retrofit (60-70% energy reduction)</li>
+                    <li>Occupancy sensors in back rooms</li>
+                    <li>Daylight harvesting near windows</li>
+                    <li>Night setback (raise temps when closed)</li>
+                </ul>
+
+                <h3>Labor Optimization</h3>
+                <div class="highlight-box">
+                    <strong>Impact:</strong> Reduce labor costs by 15-25% while improving customer service.
+                </div>
+
+                <h4>AI-Powered Scheduling</h4>
+                <p>Match staffing to actual customer traffic patterns:</p>
+                <ul>
+                    <li>Predict traffic by 15-minute intervals</li>
+                    <li>Calculate required labor hours by department</li>
+                    <li>Generate optimized schedules automatically</li>
+                    <li>Real-time adjustments (call in help when busy, early release when slow)</li>
+                </ul>
+                <p><strong>Result:</strong> 12-18% labor cost reduction with better service</p>
+
+                <h4>Cross-Training Program</h4>
+                <p>Build a flexible workforce that moves where needed:</p>
+                <ul>
+                    <li><strong>Tier 1 (Everyone):</strong> Cashier, bagging, customer service</li>
+                    <li><strong>Tier 2 (50%):</strong> Stocking, inventory, price changes</li>
+                    <li><strong>Tier 3 (20%):</strong> Deli, bakery, meat cutting</li>
+                </ul>
+                <p><strong>Result:</strong> Reduce idle time by 40-60%, increase employee satisfaction</p>
+
+                <h4>Selective Automation</h4>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Technology</th>
+                            <th>Labor Impact</th>
+                            <th>Cost</th>
+                            <th>Payback</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Self-Checkout</td>
+                            <td>3-5 FTE saved per store</td>
+                            <td>$5K-10K per station</td>
+                            <td>12-18 months</td>
+                        </tr>
+                        <tr>
+                            <td>Automated Floor Scrubbers</td>
+                            <td>2-3 FTE saved</td>
+                            <td>$30K-50K</td>
+                            <td>18-24 months</td>
+                        </tr>
+                        <tr>
+                            <td>Electronic Shelf Labels</td>
+                            <td>1-1.5 FTE saved (price changes)</td>
+                            <td>$3-5 per label</td>
+                            <td>24-36 months</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="case-study">
+                    <h4>📊 Case Study: Kroger</h4>
+                    <p><strong>Challenge:</strong> Labor costs at 14% of revenue, inconsistent service</p>
+                    <p><strong>Solution:</strong> AI scheduling + expanded self-checkout + cross-training</p>
+                    <p><strong>Results:</strong></p>
+                    <span class="metric">Labor: 14% → 11.2% of revenue</span>
+                    <span class="metric">Wait times: -35%</span>
+                    <span class="metric">Employee turnover: -22%</span>
+                    <span class="metric">$800M+ saved annually</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- SOURCING TAB -->
+        <div id="sourcing" class="tab-content">
+            <div class="section">
+                <h2>Strategic Sourcing</h2>
+                
+                <div class="highlight-box">
+                    <strong>Impact:</strong> Reduce cost of goods by 8-15% through direct partnerships and private label development.
+                </div>
+
+                <h3>The Problem: Too Many Layers</h3>
+                <p><strong>Traditional Supply Chain:</strong></p>
+                <ul>
+                    <li>Farmer/Manufacturer: $1.00</li>
+                    <li>→ Regional Distributor (+20%): $1.20</li>
+                    <li>→ Wholesaler/Broker (+25%): $1.50</li>
+                    <li>→ Retailer Purchase: $2.03</li>
+                    <li>→ Customer Pays (40% margin): $2.84</li>
+                </ul>
+
+                <p><strong>Optimized Supply Chain:</strong></p>
+                <ul>
+                    <li>Farmer/Manufacturer: $1.00</li>
+                    <li>→ Retailer Purchase (+15%): $1.15</li>
+                    <li>→ Customer Pays (40% margin): $1.61</li>
+                </ul>
+                <p><strong>Result: 43% lower price to customer</strong></p>
+
+                <h3>Strategy 1: Direct Farm Partnerships</h3>
+                
+                <h4>How It Works:</h4>
+                <ol>
+                    <li><strong>Identify regional producers</strong> (within 150-mile radius)</li>
+                    <li><strong>Negotiate long-term contracts</strong> - Commit to purchasing X% of farm's output</li>
+                    <li><strong>Arrange logistics</strong> - Farm delivers or store operates "milk run" pickup</li>
+                    <li><strong>Market the story</strong> - "Tomatoes from Johnson Farm, 30 miles away"</li>
+                </ol>
+
+                <p><strong>Benefits:</strong></p>
+                <ul>
+                    <li>20-30% below conventional distributor pricing</li>
+                    <li>Higher quality and fresher product</li>
+                    <li>Customers willing to pay 10-15% premium for "local"</li>
+                    <li>More resilient supply chain</li>
+                </ul>
+
+                <h3>Strategy 2: Private Label Development</h3>
+                
+                <p>Private label products typically offer 25-40% higher margins than national brands.</p>
+
+                <h4>Three-Tier Approach:</h4>
+                <table class="comparison-table">
+                    <thead>
+                        <tr>
+                            <th>Tier</th>
+                            <th>Positioning</th>
+                            <th>Price vs. National Brand</th>
+                            <th>Margin</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><strong>Value/Generic</strong></td>
+                            <td>Budget-conscious</td>
+                            <td>20-30% below</td>
+                            <td>30-35%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Quality Parity</strong></td>
+                            <td>Equal quality, better value</td>
+                            <td>10-15% below</td>
+                            <td>35-40%</td>
+                        </tr>
+                        <tr>
+                            <td><strong>Premium</strong></td>
+                            <td>Artisanal, organic, unique</td>
+                            <td>At or above national brands</td>
+                            <td>40-50%</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h4>Development Process:</h4>
+                <ol>
+                    <li>Identify high-volume, high-margin categories</li>
+                    <li>Find co-packer (manufacturer)</li>
+                    <li>Develop formulation (match or exceed national brand)</li>
+                    <li>Design distinctive packaging</li>
+                    <li>Price competitively and promote heavily</li>
+                </ol>
+
+                <p><strong>Target:</strong> Private label = 30-40% of sales (vs. 18% grocery average)</p>
+
+                <h3>Strategy 3: Distributor Negotiation</h3>
+                
+                <p><strong>Leverage Points:</strong></p>
+                <ul>
+                    <li><strong>Volume commitments:</strong> "Increase order 30%, what's the discount?"</li>
+                    <li><strong>Payment terms:</strong> Early payment discount (2% for 10 days)</li>
+                    <li><strong>Consolidation:</strong> Reduce from 8 distributors to 3</li>
+                    <li><strong>Forward buying:</strong> Buy seasonal items in bulk when low</li>
+                    <li><strong>Competitive bidding:</strong> Transparent RFP for major categories</li>
+                </ul>
+
+                <p><strong>Cost-Plus Contracts:</strong></p>
+                <p>Instead of "list price minus X%", negotiate "cost + fixed markup"</p>
+                <p>Example: Manufacturer → Distributor: $10, Distributor → You: $10.50 (fixed 50¢)</p>
+
+                <div class="case-study">
+                    <h4>📊 Case Study: Trader Joe's</h4>
+                    <p><strong>Strategy:</strong> 80% private label, direct sourcing, 4,000 SKUs (vs. 40,000 typical)</p>
+                    <p><strong>Results:</strong></p>
+                    <span class="metric">Margins: 35-40%</span>
+                    <span class="metric">Prices: 20-30% below competitors</span>
+                    <span class="metric">Sales/sq ft: $1,750 (2x average)</span>
+                    <span class="metric">Highest customer loyalty in industry</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI PROMPTS TAB -->
+        <div id="prompts" class="tab-content">
+            <div class="section">
+                <h2>AI-Powered Implementation Prompts</h2>
+                <p style="font-size: 1.1em; margin-bottom: 30px;">Copy these prompts and customize them with your data to get actionable strategies from AI assistants like Claude, ChatGPT, or specialized grocery AI tools.</p>
+
+                <h3>Comprehensive Analysis Prompts</h3>
+
+                <div class="prompt-card">
+                    <h4>1. Complete Waste Analysis & Reduction Plan</h4>
+                    <div class="prompt-text">I need a comprehensive waste reduction strategy for my grocery store.
+
+CURRENT SITUATION:
+- Monthly revenue: $[AMOUNT]
+- Current waste rate: [X]% of inventory
+- Biggest waste categories: [LIST]
+- Current waste tracking: [DESCRIBE]
+
+Please analyze and provide:
+
+1. TRACKING SYSTEM DESIGN
+   - What to measure and how
+   - Technology requirements (apps, scales, systems)
+   - Staff training protocols
+   - Daily/weekly reporting structure
+
+2. PREVENTION STRATEGIES BY DEPARTMENT
+   - Produce: Temperature, rotation, handling, displays
+   - Bakery: Production scheduling, par-baking, day-old programs
+   - Meat/Seafood: Demand forecasting, grinding, marinating
+   - Deli: Batch sizing, timing, menu optimization
+   - Dairy: FIFO, markdown timing, quality monitoring
+
+3. DONATION PROGRAM SETUP
+   - Partner identification (food banks, shelters)
+   - Logistics (pickup schedule, staging area)
+   - Legal compliance (Good Samaritan Act)
+   - Tax documentation for deductions
+   - Quality standards for donated items
+
+4. FINANCIAL PROJECTIONS
+   - Month-by-month waste reduction targets
+   - Expected savings by category
+   - Implementation costs
+   - Tax benefits from donations
+   - ROI timeline
+
+5. IMPLEMENTATION ROADMAP
+   - Month 1-3: Quick wins
+   - Month 4-6: System implementation
+   - Month 7-12: Optimization and scaling
+   - Success metrics and KPIs
+
+Please be specific and actionable with examples relevant to my situation.</div>
+                    <button class="copy-btn" onclick="copyPrompt(this)">Copy Prompt</button>
+                </div>
+
+                <div class="prompt-card">
+                    <h4>2. Dynamic Pricing Implementation Plan</h4>
+                    <div class="prompt-text">Help me design and implement a dynamic pricing system for my grocery store.
+
+MY STORE DATA:
+- Store size: [SQ FT]
+- Weekly revenue: $[AMOUNT]
+- Current waste rate: [X]%
+- High-waste departments: [LIST]
+- Technology in place: [POS system, inventory tracking, etc.]
+
+Please create a detailed plan covering:
+
+1. SYSTEM REQUIREMENTS
+   - Electronic shelf labels (ESL) - which vendor, how many, cost
+   - Software integration needs
+   - Inventory system requirements
+   - Mobile app for customer notifications
+
+2. PRICING STRATEGY BY CATEGORY
+   For each department (Produce, Bakery, Meat, Deli, Dairy):
+   - Markdown timing (days before expiration)
+   - Discount percentages at each stage
+   - Minimum margin thresholds
+   - Special handling (bundles, personalized offers)
+
+3. CUSTOMER COMMUNICATION
+   - In-store signage explaining program
+   - Mobile app messaging
+   - Loyalty program integration
+   - How to position markdowns (freshness focus, not desperation)
+
+4. STAFF TRAINING
+   - How the system works
+   - Handling customer questions
+   - Override protocols for special cases
+   - Quality control responsibilities
+
+5. PHASED ROLLOUT
+   - Phase 1 (Month 1-2): Pilot in one department
+   - Phase 2 (Month 3-4): Expand to all perishables
+   - Phase 3 (Month 5-6): Add demand-sensing features
+   - Testing and optimization throughout
+
+6. FINANCIAL PROJECTIONS
+   - Expected waste reduction (%)
+   - Revenue impact from optimized pricing
+   - Implementation costs
+   - Monthly benefit by phase
+   - Break-even timeline
+
+Include specific examples and calculations based on my store's data.</div>
+                    <button class="copy-btn" onclick="copyPrompt(this)">Copy Prompt</button>
+                </div>
+
+                <div class="prompt-card">
+                    <h4>3. Inventory Optimization Strategy</h4>
+                    <div class="prompt-text">Create an inventory optimization plan to reduce carrying costs while improving in-stock rates.
+
+CURRENT INVENTORY SITUATION:
+- Total inventory value: $[AMOUNT]
+- Annual inventory turns: [X]
+- Current stockout rate: [X]%
+- Days on hand by category: [LIST]
+- Ordering process: [DESCRIBE - manual, automated, etc.]
+
+Please provide:
+
+1. DEMAND FORECASTING SYSTEM
+   - Data requirements (historical sales, seasons, promotions, weather)
+   - Forecasting methodology for different product types
+   - Accuracy targets by category
+   - Technology recommendations (software vendors, costs)
+
+2. OPTIMAL INVENTORY LEVELS BY CATEGORY
+   Create a table showing:
+   - Current days on hand
+   - Optimal days on hand
+   - Reorder points
+   - Safety stock levels
+   - Expected inventory value reduction
+
+3. AUTOMATED REORDERING LOGIC
+   - When to trigger orders (reorder points)
+   - How much to order (economic order quantity)
+   - Supplier selection criteria
+   - Order consolidation opportunities
+   - Manual override procedures
+
+4. CATEGORY-SPECIFIC STRATEGIES
+   - Produce: Daily deliveries, local sourcing
+   - Dairy: FIFO enforcement, markdown triggers
+   - Meat: Demand-based cutting, weather adjustments
+   - Frozen: Bulk ordering for discounts
+   - Dry goods: Promotional planning, forward buying
+
+5. IMPLEMENTATION PLAN
+   - Technology selection and integration (3 vendors to evaluate)
+   - Data migration and system setup
+   - Staff training on new processes
+   - Pilot program (1-2 categories first)
+   - Rollout timeline and milestones
+
+6. FINANCIAL IMPACT
+   - Inventory reduction ($ and %)
+   - Working capital freed
+   - Carrying cost savings
+   - Improved stockout costs avoided
+   - Technology investment required
+   - ROI calculation and payback period
+
+Show me specific numbers and examples based on my inventory data.</div>
+                    <button class="copy-btn" onclick="copyPrompt(this)">Copy Prompt</button>
+                </div>
+
+                <div class="prompt-card">
+                    <h4>4. Complete Operational Efficiency Audit</h4>
+                    <div class="prompt-text">Conduct a comprehensive operational efficiency analysis and provide optimization recommendations.
+
+MY OPERATION:
+- Annual revenue: $[AMOUNT]
+- Store size: [SQ FT]
+- Number of employees: [X]
+- Monthly energy bill: $[AMOUNT]
+- Current gross margin: [X]%
+- Current operating expenses: [X]% of revenue
+
+Analyze and optimize these areas:
+
+1. ENERGY EFFICIENCY
+   - Refrigeration (current systems, age, efficiency)
+   - HVAC (system details, controls)
+   - Lighting (current vs. LED opportunities)
+   - Benchmark against industry ($/sq ft)
+   - Quick wins (low/no cost improvements)
+   - Major investments (payback analysis)
+   - Expected annual savings
+
+2. LABOR OPTIMIZATION
+   - Current labor cost as % of revenue
+   - Scheduling efficiency (peak vs. off-peak staffing)
+   - Cross-training opportunities
+   - Automation candidates (self-checkout, floor scrubbers, etc.)
+   - Staff productivity metrics
+   - Expected labor cost reduction
+   - Implementation roadmap
+
+3. OPERATIONAL PROCESSES
+   - Receiving and put-away efficiency
+   - Checkout speed and customer wait times
+   - Restocking and merchandising workflows
+   - Cleaning and maintenance schedules
+   - Bottlenecks and inefficiencies
+   - Technology solutions
+   - Process improvement recommendations
+
+4. VENDOR MANAGEMENT
+   - Current number of vendors/distributors
+   - Consolidation opportunities
+   - Payment terms optimization
+   - Delivery schedules and efficiency
+   - Alternative supplier options
+   - Negotiation strategies
+
+5. COMPREHENSIVE FINANCIAL MODEL
+   Show before and after for:
+   - Revenue
+   - COGS
+   - Labor
+   - Occupancy (including energy)
+   - Other operating expenses
+   - EBITDA
+   - Expected improvement timeline
+
+6. 12-MONTH IMPLEMENTATION ROADMAP
+   Month-by-month plan with:
+   - What to implement
+   - Who is responsible
+   - Resources required
+   - Expected costs
+   - Expected benefits
+   - Cumulative savings
+
+Provide specific, actionable recommendations with ROI calculations.</div>
+                    <button class="copy-btn" onclick="copyPrompt(this)">Copy Prompt</button>
+                </div>
+
+                <div class="prompt-card">
+                    <h4>5. Direct Sourcing & Private Label Strategy</h4>
+                    <div class="prompt-text">Help me develop a comprehensive sourcing strategy to reduce COGS by 10-15%.
+
+MY SITUATION:
+- Annual revenue: $[AMOUNT]
+- Current COGS: [X]% of revenue
+- Top product categories by revenue: [LIST]
+- Geographic location: [CITY, STATE]
+- Current private label penetration: [X]%
+- Store positioning: [Value/Mid-market/Premium]
+
+Create a detailed plan for:
+
+1. DIRECT FARM PARTNERSHIPS
+   - Identify product categories suitable for local sourcing (produce, dairy, meat, baked goods)
+   - Regional producer research (within 150-mile radius)
+   - Contract structure (volume commitments, pricing, quality specs)
+   - Logistics options (farm delivery vs. store pickup vs. third-party)
+   - Marketing approach (farm stories, signage, customer education)
+   - Financial analysis (cost savings vs. conventional, pricing strategy)
+   - Implementation timeline
+
+2. PRIVATE LABEL PROGRAM
+   - Category selection (highest impact opportunities)
+   - Three-tier structure:
+     * Value tier (which products, pricing, expected margin)
+     * Quality parity tier (which products, pricing, expected margin)
+     * Premium tier (which products, pricing, expected margin)
+   - Co-packer identification (vendors for each category)
+   - Product development process
+   - Packaging design requirements
+   - Launch and promotion strategy
+   - Sales targets (path to 35% private label penetration)
+
+3. DISTRIBUTOR OPTIMIZATION
+   - Current distributor analysis (# of vendors, spend by vendor, terms)
+   - Consolidation opportunities
+   - Competitive bidding strategy
+   - Cost-plus contract structure
+   - Payment terms negotiation
+   - Forward buying opportunities
+   - Expected savings by vendor
+
+4. SUPPLIER NEGOTIATION TACTICS
+   For top 10 suppliers:
+   - Current terms and pricing
+   - Leverage points (volume, payment terms, exclusivity)
+   - Alternative supplier options (backup plan)
+   - Negotiation talking points
+   - What to ask for (discounts, rebates, marketing support)
+   - Walk-away thresholds
+
+5. FINANCIAL PROJECTIONS (3-YEAR)
+   Year-by-year showing:
+   - COGS reduction by strategy
+   - Private label penetration growth
+   - Margin improvement
+   - Implementation costs
+   - Net financial impact
+   - Working capital implications
+
+6. RISK MITIGATION
+   - Supply chain disruption scenarios
+   - Quality control procedures
+   - Customer acceptance testing
+   - Backup supplier strategies
+   - Inventory buffer planning
+
+Provide specific vendor recommendations and detailed financial models.</div>
+                    <button class="copy-btn" onclick="copyPrompt(this)">Copy Prompt</button>
+                </div>
+
+                <h3>Quick Analysis Prompts</h3>
+
+                <div class="prompt-card">
+                    <h4>6. Energy Cost Reduction Quick Audit</h4>
+                    <div class="prompt-text">Analyze my energy costs and provide quick wins + major opportunities.
+
+DETAILS:
+- Monthly energy bill: $[AMOUNT]
+- Store size: [SQ FT]
+- Equipment: [refrigeration cases, walk-ins, HVAC age, lighting type]
+
+Provide:
+1. Quick wins (under $10K, immediate impact)
+2. Medium investments ($10K-50K, 1-2 year payback)
+3. Major upgrades (over $50K, 3-5 year payback)
+4. Annual savings for each recommendation
+5. Specific vendors/products to consider</div>
+                    <button class="copy-btn" onclick="copyPrompt(this)">Copy Prompt</button>
+                </div>
+
+                <div class="prompt-card">
+                    <h4>7. Labor Scheduling Optimization</h4>
+                    <div class="prompt-text">Optimize my labor schedule based on traffic patterns.
+
+DATA:
+- Current weekly labor cost: $[AMOUNT]
+- Store hours: [HOURS]
+- Employee count: [X]
+- Hourly traffic data: [PASTE or DESCRIBE peak times]
+
+Create:
+1. Optimized weekly schedule
+2. Cross-training plan
+3. Expected cost savings
+4. Implementation steps</div>
+                    <button class="copy-btn" onclick="copyPrompt(this)">Copy Prompt</button>
+                </div>
+
+                <div class="prompt-card">
+                    <h4>8. Food Donation Program Setup</h4>
+                    <div class="prompt-text">Help me set up a food donation program.
+
+MY SITUATION:
+- Weekly waste: [X] lbs, $[Y] cost
+- Location: [CITY, STATE]
+- Waste by category: [BREAKDOWN]
+
+Provide:
+1. Local partner recommendations (food banks, shelters)
+2. Legal compliance checklist
+3. Logistics plan (pickup schedule, staging, training)
+4. Tax deduction calculation
+5. Implementation checklist</div>
+                    <button class="copy-btn" onclick="copyPrompt(this)">Copy Prompt</button>
+                </div>
+            </div>
+        </div>
+
+        <footer>
+            <h3>The Path Forward</h3>
+            <p style="font-size: 1.1em; margin: 20px 0;">Every optimization creates multiple benefits:</p>
+            <p>Lower costs → Lower prices → More accessible food → Healthier communities</p>
+            <p style="margin-top: 15px;">Wasted food recovered → Donated to those in need → Lives improved</p>
+            <p style="margin-top: 15px;">Efficiency gains → Capital freed → Investment in people and communities</p>
+            <p style="margin-top: 30px; font-size: 1.2em; font-weight: bold;">Together, we can make food accessible and abundant for everyone.</p>
+        </footer>
+    </div>
+
+    <script>
+        function switchTab(tabName) {
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            document.querySelectorAll('.nav-tab').forEach(btn => btn.classList.remove('active'));
+            
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+            
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        function copyPrompt(button) {
+            const promptText = button.previousElementSibling.innerText;
+            navigator.clipboard.writeText(promptText).then(() => {
+                const originalText = button.innerText;
+                button.innerText = '✓ Copied!';
+                button.style.background = '#28a745';
+                setTimeout(() => {
+                    button.innerText = originalText;
+                    button.style.background = '#667eea';
+                }, 2000);
+            });
+        }
+
+        // Initialize charts
+        document.addEventListener('DOMContentLoaded', function() {
+            // Timeline Chart
+            const timelineCtx = document.getElementById('timelineChart');
+            if (timelineCtx) {
+                new Chart(timelineCtx, {
+                    type: 'line',
+                    data: {
+                        labels: ['Start', 'Month 3', 'Month 6', 'Month 9', 'Month 12'],
+                        datasets: [{
+                            label: 'Cumulative Savings ($K)',
+                            data: [0, 250, 580, 1020, 1680],
+                            borderColor: '#667eea',
+                            backgroundColor: 'rgba(102, 126, 234, 0.1)',
+                            fill: true,
+                            tension: 0.4
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true }
+                        },
+                        scales: {
+                            y: { beginAtZero: true }
+                        }
+                    }
+                });
+            }
+
+            // Inventory Chart
+            const invCtx = document.getElementById('inventoryChart');
+            if (invCtx) {
+                new Chart(invCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Produce', 'Dairy', 'Meat', 'Bakery', 'Frozen', 'Dry Goods'],
+                        datasets: [
+                            {
+                                label: 'Current Days on Hand',
+                                data: [4, 6, 5, 2, 28, 35],
+                                backgroundColor: '#e74c3c'
+                            },
+                            {
+                                label: 'Optimized Days on Hand',
+                                data: [2, 4, 3, 1, 18, 24],
+                                backgroundColor: '#27ae60'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true }
+                        },
+                        scales: {
+                            y: { 
+                                beginAtZero: true,
+                                title: { display: true, text: 'Days of Inventory' }
+                            }
+                        }
+                    }
+                });
+            }
+
+            // Waste Chart
+            const wasteCtx = document.getElementById('wasteChart');
+            if (wasteCtx) {
+                new Chart(wasteCtx, {
+                    type: 'bar',
+                    data: {
+                        labels: ['Produce', 'Bakery', 'Deli', 'Meat', 'Dairy', 'Other'],
+                        datasets: [
+                            {
+                                label: 'Current Waste Rate (%)',
+                                data: [14, 18, 11, 9, 7, 5],
+                                backgroundColor: '#e74c3c'
+                            },
+                            {
+                                label: 'Target Waste Rate (%)',
+                                data: [5, 6, 4, 3, 3, 2],
+                                backgroundColor: '#27ae60'
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: true }
+                        },
+                        scales: {
+                            y: { 
+                                beginAtZero: true,
+                                max: 20,
+                                title: { display: true, text: 'Waste as % of Category Sales' }
+                            }
+                        }
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
